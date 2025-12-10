@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisk Email Signature Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .form-group label .optional {
+            color: #a0aec0;
+            font-weight: 400;
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e0;
+        }
+
+        .signature-preview {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .signature {
+            font-family: Arial, sans-serif;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sig-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+            transition: background-color 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .sig-name.highlight {
+            background-color: rgba(102, 126, 234, 0.15);
+        }
+
+        .sig-role {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 2px;
+            transition: background-color 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .sig-role.highlight {
+            background-color: rgba(102, 126, 234, 0.15);
+        }
+
+        .sig-team {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: background-color 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .sig-team.highlight {
+            background-color: rgba(102, 126, 234, 0.15);
+        }
+
+        .sig-divider {
+            height: 2px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            margin: 12px 0;
+            border-radius: 2px;
+        }
+
+        .sig-contact {
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .sig-contact-item {
+            color: #4a5568;
+            margin-bottom: 3px;
+            transition: background-color 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .sig-contact-item.highlight {
+            background-color: rgba(102, 126, 234, 0.15);
+        }
+
+        .sig-contact-item strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .sig-contact-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .sig-contact-item a:hover {
+            text-decoration: underline;
+        }
+
+        .sig-logo {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .sig-logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: -0.5px;
+        }
+
+        .sig-tagline {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .instructions h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 15px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .instructions strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .instructions code {
+            background: #f7fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .note {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .note p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .note p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        #downloadCanvas {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Whisk Email Signature Generator</h1>
+            <p>Create your professional Samsung Food email signature</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>Your Information</h2>
+                <form id="signatureForm">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input 
+                            type="text" 
+                            id="firstName" 
+                            placeholder="John"
+                            data-highlight="sig-name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input 
+                            type="text" 
+                            id="lastName" 
+                            placeholder="Doe"
+                            data-highlight="sig-name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Job Title / Role</label>
+                        <input 
+                            type="text" 
+                            id="role" 
+                            placeholder="Product Manager"
+                            data-highlight="sig-role"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone <span class="optional">(optional)</span></label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            placeholder="+1 (555) 123-4567"
+                            data-highlight="sig-phone"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            placeholder="john.doe@samsungfood.com"
+                            data-highlight="sig-email"
+                            required
+                        >
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Preview</h2>
+                <div class="signature-preview">
+                    <div class="signature" id="signaturePreview">
+                        <div class="sig-name" id="preview-name">John Doe</div>
+                        <div class="sig-role" id="preview-role">Product Manager</div>
+                        <div class="sig-team" id="preview-team">Whisk</div>
+                        
+                        <div class="sig-divider"></div>
+                        
+                        <div class="sig-contact">
+                            <div class="sig-contact-item sig-phone" id="preview-phone-container" style="display: none;">
+                                <strong>P:</strong> <span id="preview-phone">+1 (555) 123-4567</span>
+                            </div>
+                            <div class="sig-contact-item sig-email">
+                                <strong>E:</strong> <a href="#" id="preview-email">john.doe@samsungfood.com</a>
+                            </div>
+                            <div class="sig-contact-item sig-website">
+                                <strong>W:</strong> <a href="https://samsungfood.com" target="_blank">samsungfood.com</a>
+                            </div>
+                        </div>
+
+                        <div class="sig-logo">
+                            <div class="sig-logo-text">Samsung Food</div>
+                            <div class="sig-tagline">Powered by Whisk</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">Generating image...</div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" id="downloadBtn">
+                        <span>⬇️</span> Download Signature
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="copyBtn">
+                        <span>📋</span> Copy HTML
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📝 How to Add Your Signature to Gmail</h2>
+            <ol>
+                <li>Click the <strong>"Download Signature"</strong> button above to save your signature as an image.</li>
+                <li>Open <strong>Gmail</strong> and click the <strong>gear icon</strong> ⚙️ in the top right, then select <strong>"See all settings"</strong>.</li>
+                <li>Scroll down to the <strong>"Signature"</strong> section.</li>
+                <li>Click <strong>"+ Create new"</strong> and give your signature a name (e.g., "Whisk Signature").</li>
+                <li>In the signature editor, click the <strong>image icon</strong> 🖼️ to insert an image.</li>
+                <li>Upload the signature image you downloaded in step 1.</li>
+                <li>Once uploaded, <strong>resize the image</strong> to an appropriate size (recommended: <code>400-500px width</code>).</li>
+                <li>Scroll down and click <strong>"Save Changes"</strong> at the bottom of the page.</li>
+            </ol>
+
+            <div class="note">
+                <p><strong>💡 Pro Tips:</strong></p>
+                <p>• Make sure your signature isn't too large - aim for around 400-500 pixels wide for optimal display.</p>
+                <p>• Test your signature by sending yourself an email to ensure it displays correctly.</p>
+                <p>• You can set different signatures for new emails vs. replies in Gmail settings.</p>
+                <p>• For best results, make sure all your contact information is accurate before downloading.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Made with ❤️ for the Whisk Team</p>
+        </div>
+    </div>
+
+    <canvas id="downloadCanvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Form elements
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const role = document.getElementById('role');
+        const phone = document.getElementById('phone');
+        const email = document.getElementById('email');
+
+        // Preview elements
+        const previewName = document.getElementById('preview-name');
+        const previewRole = document.getElementById('preview-role');
+        const previewPhone = document.getElementById('preview-phone');
+        const previewPhoneContainer = document.getElementById('preview-phone-container');
+        const previewEmail = document.getElementById('preview-email');
+
+        // Buttons
+        const downloadBtn = document.getElementById('downloadBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const loading = document.getElementById('loading');
+
+        // Auto-select text on focus
+        const inputs = document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"]');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.select();
+            });
+
+            // Add click event as well for better UX
+            input.addEventListener('click', function() {
+                this.select();
+            });
+
+            // Hover highlighting
+            input.addEventListener('mouseenter', function() {
+                const highlightClass = this.getAttribute('data-highlight');
+                if (highlightClass) {
+                    const elements = document.getElementsByClassName(highlightClass);
+                    for (let el of elements) {
+                        el.classList.add('highlight');
+                    }
+                }
+            });
+
+            input.addEventListener('mouseleave', function() {
+                const highlightClass = this.getAttribute('data-highlight');
+                if (highlightClass) {
+                    const elements = document.getElementsByClassName(highlightClass);
+                    for (let el of elements) {
+                        el.classList.remove('highlight');
+                    }
+                }
+            });
+        });
+
+        // Update preview in real-time
+        function updatePreview() {
+            const fullName = `${firstName.value.trim()} ${lastName.value.trim()}`.trim();
+            previewName.textContent = fullName || 'John Doe';
+            previewRole.textContent = role.value.trim() || 'Product Manager';
+            
+            const phoneValue = phone.value.trim();
+            if (phoneValue) {
+                previewPhone.textContent = phoneValue;
+                previewPhoneContainer.style.display = 'block';
+            } else {
+                previewPhoneContainer.style.display = 'none';
+            }
+
+            const emailValue = email.value.trim();
+            previewEmail.textContent = emailValue || 'john.doe@samsungfood.com';
+            previewEmail.href = emailValue ? `mailto:${emailValue}` : '#';
+        }
+
+        // Add event listeners for real-time updates
+        firstName.addEventListener('input', updatePreview);
+        lastName.addEventListener('input', updatePreview);
+        role.addEventListener('input', updatePreview);
+        phone.addEventListener('input', updatePreview);
+        email.addEventListener('input', updatePreview);
+
+        // Download as image
+        downloadBtn.addEventListener('click', async function() {
+            const signatureElement = document.getElementById('signaturePreview');
+            
+            loading.classList.add('show');
+            downloadBtn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(signatureElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    width: signatureElement.offsetWidth,
+                    height: signatureElement.offsetHeight
+                });
+
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const namePart = `${firstName.value.trim()}_${lastName.value.trim()}`.toLowerCase().replace(/\s+/g, '_');
+                    a.download = `whisk_signature_${namePart || 'default'}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    loading.classList.remove('show');
+                    downloadBtn.disabled = false;
+                });
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Error generating image. Please try again.');
+                loading.classList.remove('show');
+                downloadBtn.disabled = false;
+            }
+        });
+
+        // Copy HTML to clipboard
+        copyBtn.addEventListener('click', function() {
+            const signatureHTML = document.getElementById('signaturePreview').innerHTML;
+            
+            // Create a temporary textarea to copy the HTML
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = signatureHTML;
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            
+            try {
+                document.execCommand('copy');
+                
+                // Visual feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span>✓</span> Copied!';
+                copyBtn.style.background = '#48bb78';
+                copyBtn.style.color = 'white';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '';
+                    copyBtn.style.color = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy HTML. Please try again.');
+            }
+            
+            document.body.removeChild(tempTextarea);
+        });
+
+        // Initialize with empty preview
+        updatePreview();
+    </script>
+</body>
+</html>
