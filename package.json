@@ -1,0 +1,17 @@
+{
+  "name": "whisk-email-signature-generator",
+  "version": "1.0.0",
+  "description": "Email signature generator for Whisk team at Samsung Food",
+  "scripts": {
+    "dev": "npx serve -l 3000",
+    "start": "npm run dev",
+    "preview": "npx serve -l 5000"
+  },
+  "keywords": [
+    "email",
+    "signature",
+    "generator"
+  ],
+  "author": "Whisk Team",
+  "license": "MIT"
+}
